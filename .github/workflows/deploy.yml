@@ -1,0 +1,43 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ami-backend.pem
+        chmod 400 ~/.ssh/ami-backend.pem
+        ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+    - name: Sync files to EC2
+      run: |
+        rsync -avz --exclude 'node_modules' --exclude '.git' --exclude '.env' \
+        -e "ssh -i ~/.ssh/ami-backend.pem" \
+        . ubuntu@${{ secrets.EC2_HOST }}:~/app
+
+    - name: Deploy application on EC2
+      run: |
+        ssh -i ~/.ssh/ami-backend.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          cd ~/app
+          sudo docker compose down
+          sudo docker compose up -d --build
+          sudo docker system prune -f
+        EOF
+
+    - name: Verify deployment
+      run: |
+        sleep 30
+        ssh -i ~/.ssh/ami-backend.pem ubuntu@${{ secrets.EC2_HOST }} << 'EOF'
+          cd ~/app
+          sudo docker compose ps
+        EOF
