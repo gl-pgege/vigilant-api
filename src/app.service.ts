@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class AppService {
   getHello(): string {
-    return 'Vigilant Flow API is running!';
+    return 'Vigilant Flow API is runninnnnnnggg!';
   }
 
   getHealth(): { status: string; timestamp: string } {
