@@ -10,7 +10,7 @@ export class AppController {
   @Get()
   @ApiOperation({ summary: 'Get application status' })
   @ApiResponse({ status: 200, description: 'Application is running' })
-  getHello(): string {
+  getHello(): { message: string; timestamp: string } {
     return this.appService.getHello();
   }
 

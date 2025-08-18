@@ -4,9 +4,15 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   app.enableCors({
-    origin: ['http://localhost:5173', 'http://localhost:8080', 'http://localhost:3000'],
+    origin: [
+      'http://localhost:5173',
+      'http://localhost:8080',
+      'http://localhost:3000',
+      'http://ami-fe.s3-website-us-east-1.amazonaws.com',
+      'd102y6c2csro1w.cloudfront.net',
+    ],
     credentials: true,
   });
 
@@ -16,7 +22,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('vigilant')
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
